@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screening System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ========== NAVBAR ========== -->
+<nav class="navbar">
+    <div class="nav-brand">
+        <i class="fas fa-brain"></i> AI-Resume
+    </div>
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#upload">Screen</a>
+        <a href="#about">About</a>
+    </div>
+</nav>
+
+<!-- ========== HERO SECTION ========== -->
+<section class="hero" id="home">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <i class="fas fa-robot"></i> AI Powered Screening
+        </div>
+        <h1>Smart Resume <span class="highlight">Screening</span> System</h1>
+        <p>Automatically rank and filter resumes based on job description
+           using advanced NLP and Machine Learning technology</p>
+        <a href="#upload" class="btn-primary">
+            <i class="fas fa-upload"></i> Start Screening
+        </a>
+    </div>
+    <div class="hero-stats">
+        <div class="stat-card">
+            <h3>NLP</h3>
+            <p>Powered</p>
+        </div>
+        <div class="stat-card">
+            <h3>TF-IDF</h3>
+            <p>Algorithm</p>
+        </div>
+        <div class="stat-card">
+            <h3>100%</h3>
+            <p>Accurate</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========== UPLOAD SECTION ========== -->
+<section class="upload-section" id="upload">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-search"></i> Screen Resumes</h2>
+            <p>Upload resumes and enter job description to get instant ranking</p>
+        </div>
+
+        <!-- Error Message -->
+        {% if error %}
+        <div class="alert-error">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Upload Form -->
+        <form action="/analyze" method="POST" enctype="multipart/form-data" class="upload-form">
+
+            <!-- Job Title -->
+            <div class="form-group">
+                <label><i class="fas fa-briefcase"></i> Job Title</label>
+                <input type="text" name="job_title"
+                       placeholder="e.g. Python Developer, Data Scientist..."
+                       value="{{ job_title if job_title else '' }}">
+            </div>
+
+            <!-- Job Description -->
+            <div class="form-group">
+                <label><i class="fas fa-file-alt"></i> Job Description *</label>
+                <textarea name="job_description" rows="6"
+                          placeholder="Paste the full job description here including required skills, experience, qualifications..."
+                          required>{{ job_description if job_description else '' }}</textarea>
+            </div>
+
+            <!-- Resume Upload -->
+            <div class="form-group">
+                <label><i class="fas fa-file-pdf"></i> Upload Resumes (PDF) *</label>
+                <div class="upload-box" id="uploadBox">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & Drop resumes here or click to browse</p>
+                    <span>Supports multiple PDF files</span>
+                    <input type="file" name="resumes" multiple
+                           accept=".pdf" id="fileInput" required>
+                </div>
+                <div id="fileList" class="file-list"></div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-magic"></i> Analyze & Rank Resumes
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- ========== RESULTS SECTION ========== -->
+{% if results %}
+<section class="results-section">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-trophy"></i> Screening Results</h2>
+            <p>{{ total }} resume(s) ranked for <strong>{{ job_title if job_title else 'this position' }}</strong></p>
+        </div>
+
+        <div class="results-grid">
+            {% for r in results %}
+            <div class="result-card {{ r.badge }}">
+                <div class="rank-badge">#{{ r.rank }}</div>
+                <div class="result-info">
+                    <h3><i class="fas fa-user"></i> {{ r.name }}</h3>
+                    <div class="score-bar-container">
+                        <div class="score-bar" style="width: {{ r.score }}%"></div>
+                    </div>
+                    <div class="result-footer">
+                        <span class="score-text">{{ r.score }}% Match</span>
+                        <span class="status-badge {{ r.badge }}">{{ r.status }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ========== HOW IT WORKS ========== -->
+<section class="how-it-works" id="about">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-cogs"></i> How It Works</h2>
+            <p>Three simple steps to find your best candidate</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-paste"></i></div>
+                <h3>Step 1</h3>
+                <p>Paste your Job Description with required skills and qualifications</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-upload"></i></div>
+                <h3>Step 2</h3>
+                <p>Upload multiple candidate resumes in PDF format</p>
+            </div>
+            <div class="step-card">
+                <div class="step-icon"><i class="fas fa-chart-bar"></i></div>
+                <h3>Step 3</h3>
+                <p>AI ranks resumes by match score instantly</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+    <!-- ========== TEAM SECTION ========== -->
+<section class="team-section" id="team">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-users"></i> Development Team</h2>
+            <p>The mind behind AI-Resume</p>
+        </div>
+        <div class="team-grid">
+
+            <!-- Developer -->
+            <div class="team-card">
+                <div class="team-avatar">1</div>
+                <h3>Muhammad Abdullah Khan</h3>
+                <p class="team-role">AI + Flask Developer</p>
+                <p class="team-email">
+                    <i class="fas fa-envelope"></i>
+                    muhammadabdullah717@gmail.com
+                </p>
+            </div>
+
+            <!-- Supervisor -->
+            <div class="team-card supervisor">
+                <div class="team-avatar supervisor-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3>Mr. Muzammil ur Rehman</h3>
+                <p class="team-role">Project Supervisor</p>
+                <p class="team-email">
+                    <i class="fas fa-university"></i>
+                    The Islamia University of Bahawalpur
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-brand">
+            <i class="fas fa-brain"></i> AI-Resume
+        </div>
+        <p>AI-Powered Resume Screening System</p>
+        <p>Final Year Project | The Islamia University of Bahawalpur</p>
+        <p>Department of Information Technology</p>
+        <p class="footer-copy">© 2026 AI-Resume — All rights reserved.</p>
+    </div>
+</footer>
+
+<script>
+// Show selected file names
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const fileList = document.getElementById('fileList');
+    fileList.innerHTML = '';
+    Array.from(e.target.files).forEach((file, i) => {
+        fileList.innerHTML += `
+            <div class="file-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>${file.name}</span>
+            </div>`;
+    });
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+
+</body>
+</html>
