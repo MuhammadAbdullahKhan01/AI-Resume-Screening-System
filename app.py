@@ -75,8 +75,3 @@ def api_analyze():
     if not data:
         return jsonify({'error': 'No data provided'}), 400
     return jsonify({'message': 'API working!'}), 200
-
-# ---------- Run ----------
-if __name__ == '__main__':
-    os.makedirs('uploads', exist_ok=True)
-    app.run(debug=True, host='0.0.0.0', port=5000)
